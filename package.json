@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@cardinal/common": "^8.0.0",
-    "@cardinal/creator-standard": "^2.4.0",
+    "@cardinal/creator-standard": "^3.0.2",
     "@coral-xyz/anchor": "^0.27.0",
     "@metaplex-foundation/mpl-token-auth-rules": "^1.1.0",
     "@metaplex-foundation/mpl-token-metadata": "^2.11.0",
