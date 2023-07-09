@@ -42,16 +42,18 @@ pub enum Action {
 
 pub fn assert_payment_info(stake_pool: Pubkey, action: Action, payment_info: Pubkey) -> Result<()> {
     let default_allowed_payment_infos = match action {
-        _ => [
-            "382KXQfzC26jbFmLZBmKoZ6eRz53iwGfxXwoGyyyH8po".to_string(), // cardinal-test-wsol
-            "HqiCY5NqfHfyhyjheQ4ENo5J2XSQBpeqhNoeESkDWBpU".to_string(), // cardinal-test (native)
-            "SdFEeJxn7XxcnYEMNpnoMMSsTfmA1bHfiRdu6qra7zL".to_string(),  // cardinal-default 0.002
-        ]
-        .to_vec(),
+        _ =>
+            [
+                "3UVg7heyuV66n2RpfC1h39FPUgvdF4D5AZh99grBDUu5".to_string(), // cardinal-test-wsol
+                "3UVg7heyuV66n2RpfC1h39FPUgvdF4D5AZh99grBDUu5".to_string(), // cardinal-test (native)
+                "3UVg7heyuV66n2RpfC1h39FPUgvdF4D5AZh99grBDUu5".to_string(), // cardinal-default 0.002
+            ].to_vec(),
     };
     let allowed_payment_infos = match (stake_pool.key().to_string().as_str(), action) {
-        ("ndu643uUkFBt4YbXgHEfstkU25eEe4kDLjTD5uziEKx", Action::Stake) => ["Ad29pAAdYvYTcDzRHtA1req5an2DqFUfY1s5tkUC88Lr".to_string()].to_vec(), // vandals stake/claim cardinal-vandals
-        ("ndu643uUkFBt4YbXgHEfstkU25eEe4kDLjTD5uziEKx", Action::Unstake) => ["4LKjUP41DkFy8C4FbZpFBfNtLaSixLEfS5adrFA9Z7CN".to_string()].to_vec(), // vandals unstake cardinal-vandals-2
+        ("ndu643uUkFBt4YbXgHEfstkU25eEe4kDLjTD5uziEKx", Action::Stake) =>
+            ["Ad29pAAdYvYTcDzRHtA1req5an2DqFUfY1s5tkUC88Lr".to_string()].to_vec(), // vandals stake/claim cardinal-vandals
+        ("ndu643uUkFBt4YbXgHEfstkU25eEe4kDLjTD5uziEKx", Action::Unstake) =>
+            ["4LKjUP41DkFy8C4FbZpFBfNtLaSixLEfS5adrFA9Z7CN".to_string()].to_vec(), // vandals unstake cardinal-vandals-2
         _ => default_allowed_payment_infos,
     };
     if !allowed_payment_infos.contains(&payment_info.to_string()) {
@@ -60,7 +62,10 @@ pub fn assert_payment_info(stake_pool: Pubkey, action: Action, payment_info: Pub
     Ok(())
 }
 
-pub fn handle_payment_info<'info>(payment_info: Pubkey, remaining_accounts: &mut Iter<AccountInfo<'info>>) -> Result<()> {
+pub fn handle_payment_info<'info>(
+    payment_info: Pubkey,
+    remaining_accounts: &mut Iter<AccountInfo<'info>>
+) -> Result<()> {
     // check payment info
     let payment_info_account_info = next_account_info(remaining_accounts)?;
     assert_eq!(payment_info, payment_info_account_info.key());
@@ -73,11 +78,16 @@ pub fn handle_payment_info<'info>(payment_info: Pubkey, remaining_accounts: &mut
         payment_info_account.payment_amount,
         payment_info_account.payment_mint,
         &payment_info_account.payment_shares,
-        remaining_accounts,
+        remaining_accounts
     )
 }
 
-pub fn handle_payment<'info>(payment_amount: u64, payment_mint: Pubkey, payment_shares: &Vec<PaymentShare>, remaining_accounts: &mut Iter<AccountInfo<'info>>) -> Result<()> {
+pub fn handle_payment<'info>(
+    payment_amount: u64,
+    payment_mint: Pubkey,
+    payment_shares: &Vec<PaymentShare>,
+    remaining_accounts: &mut Iter<AccountInfo<'info>>
+) -> Result<()> {
     let payer = next_account_info(remaining_accounts)?;
     let transfer_program: &AccountInfo = if payment_mint == Pubkey::default() {
         let transfer_program = next_account_info(remaining_accounts)?;
@@ -98,7 +108,10 @@ pub fn handle_payment<'info>(payment_amount: u64, payment_mint: Pubkey, payment_
     if payment_mint != Pubkey::default() {
         let payer_token_account_info = next_account_info(remaining_accounts)?;
         let payer_token_account_data = Account::<TokenAccount>::try_from(payer_token_account_info)?;
-        if payer_token_account_data.owner != payer.key() || payer_token_account_data.mint != payment_mint.key() {
+        if
+            payer_token_account_data.owner != payer.key() ||
+            payer_token_account_data.mint != payment_mint.key()
+        {
             return Err(error!(ErrorCode::InvalidPayerTokenAccount));
         }
         payer_token_account = Some(payer_token_account_data);
@@ -107,17 +120,25 @@ pub fn handle_payment<'info>(payment_amount: u64, payment_mint: Pubkey, payment_
     let collectors = &payment_shares;
     let share_amounts: Vec<u64> = collectors
         .iter()
-        .map(|s| payment_amount.checked_mul(u64::try_from(s.basis_points).expect("Could not cast u8 to u64")).unwrap())
+        .map(|s|
+            payment_amount
+                .checked_mul(u64::try_from(s.basis_points).expect("Could not cast u8 to u64"))
+                .unwrap()
+        )
         .collect();
     let share_amounts_sum: u64 = share_amounts.iter().sum();
 
     // remainder is distributed to first collectors
-    let mut remainder = payment_amount.checked_sub(share_amounts_sum.checked_div(BASIS_POINTS_DIVISOR).expect("Div error")).expect("Sub error");
+    let mut remainder = payment_amount
+        .checked_sub(share_amounts_sum.checked_div(BASIS_POINTS_DIVISOR).expect("Div error"))
+        .expect("Sub error");
     for payment_share in payment_shares {
         if payment_share.basis_points != 0 {
             let remainder_amount = u64::from(remainder > 0);
             let payment_share_amount = payment_amount
-                .checked_mul(u64::try_from(payment_share.basis_points).expect("Could not cast u8 to u64"))
+                .checked_mul(
+                    u64::try_from(payment_share.basis_points).expect("Could not cast u8 to u64")
+                )
                 .unwrap()
                 .checked_div(BASIS_POINTS_DIVISOR)
                 .expect("Div error")
@@ -133,23 +154,42 @@ pub fn handle_payment<'info>(payment_amount: u64, payment_mint: Pubkey, payment_
                 }
                 if payment_share_amount > 0 {
                     invoke(
-                        &transfer(&payer.key(), &payment_share_account_info.key(), payment_share_amount),
-                        &[payer.to_account_info(), payment_share_account_info.to_account_info(), transfer_program.to_account_info()],
+                        &transfer(
+                            &payer.key(),
+                            &payment_share_account_info.key(),
+                            payment_share_amount
+                        ),
+                        &[
+                            payer.to_account_info(),
+                            payment_share_account_info.to_account_info(),
+                            transfer_program.to_account_info(),
+                        ]
                     )?;
                 }
             } else {
                 // any spl token
-                let payment_share_token_account = Account::<TokenAccount>::try_from(payment_share_account_info)?;
-                if payment_share_token_account.owner != payment_share.address || payment_share_token_account.mint != payment_mint.key() {
+                let payment_share_token_account = Account::<TokenAccount>::try_from(
+                    payment_share_account_info
+                )?;
+                if
+                    payment_share_token_account.owner != payment_share.address ||
+                    payment_share_token_account.mint != payment_mint.key()
+                {
                     return Err(error!(ErrorCode::InvalidTokenAccount));
                 }
                 if payment_share_amount > 0 {
                     let cpi_accounts = Transfer {
-                        from: payer_token_account.clone().expect("Invalid payer token account").to_account_info(),
+                        from: payer_token_account
+                            .clone()
+                            .expect("Invalid payer token account")
+                            .to_account_info(),
                         to: payment_share_account_info.to_account_info(),
                         authority: payer.to_account_info(),
                     };
-                    let cpi_context = CpiContext::new(transfer_program.to_account_info(), cpi_accounts);
+                    let cpi_context = CpiContext::new(
+                        transfer_program.to_account_info(),
+                        cpi_accounts
+                    );
                     token::transfer(cpi_context, payment_share_amount)?;
                 }
             }

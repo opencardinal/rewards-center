@@ -15,7 +15,7 @@ export const getArgs = (_connection: Connection, wallet: Wallet) => ({
   paymentMint: PublicKey.default,
   paymentShares: [
     {
-      address: new PublicKey("cteamyte8zjZTeexp3qTzvpb24TKRSL3HFad9SzNaNJ"),
+      address: new PublicKey("8FEdUUPFnkw1FEbpiczYGPomeGN4xzUbnpnPStgwPaUu"),
       basisPoints: 10000,
     },
   ],

@@ -7,7 +7,7 @@ keys:
 	solana-keygen new -s -o keypairs/update-authority.json
 
 key-replace:
-	find programs sdk tools tests .github -type f ! -name ".DS_Store" -exec sed -i '' -e "s/crcBwD7wUjzwsy8tJsVCzZvBTHeq5GoboGg84YraRyd/$$(solana-keygen pubkey ./keypairs/program-id.json)/g" {} +
+	find programs sdk tools tests .github -type f ! -name ".DS_Store" -exec sed -i '' -e "s/E2Wc4racSRRp8EBrMH3n1AYSjuFt4JiLdh14J58UiyDu/$$(solana-keygen pubkey ./keypairs/program-id.json)/g" {} +
 
 install:
 	yarn install
@@ -24,8 +24,8 @@ start:
 		--clone 2NjwBshDhNPyGXmYU2VBnWySvgqg1hiEAY2CPeNCd4qf \
 		--clone HqiCY5NqfHfyhyjheQ4ENo5J2XSQBpeqhNoeESkDWBpU \
 		--clone 382KXQfzC26jbFmLZBmKoZ6eRz53iwGfxXwoGyyyH8po \
-		--clone SdFEeJxn7XxcnYEMNpnoMMSsTfmA1bHfiRdu6qra7zL \
-		--bpf-program crcBwD7wUjzwsy8tJsVCzZvBTHeq5GoboGg84YraRyd ./target/deploy/cardinal_rewards_center.so \
+		--clone 3UVg7heyuV66n2RpfC1h39FPUgvdF4D5AZh99grBDUu5 \
+		--bpf-program E2Wc4racSRRp8EBrMH3n1AYSjuFt4JiLdh14J58UiyDu ./target/deploy/cardinal_rewards_center.so \
 		--reset --quiet & echo $$!
 	sleep 10
 
