@@ -1,42 +1,42 @@
-import { executeTransaction } from "@cardinal/common";
-import type { Wallet } from "@coral-xyz/anchor";
-import { BN } from "@coral-xyz/anchor";
-import type { Connection } from "@solana/web3.js";
-import { PublicKey, Transaction } from "@solana/web3.js";
+import { executeTransaction } from "@cardinal/common"
+import type { Wallet } from "@coral-xyz/anchor"
+import { BN } from "@coral-xyz/anchor"
+import type { Connection } from "@solana/web3.js"
+import { PublicKey, Transaction } from "@solana/web3.js"
 
-import { findPaymentInfoId, rewardsCenterProgram } from "../../sdk";
+import { findPaymentInfoId, rewardsCenterProgram } from "../../sdk"
 
-export const commandName = "createPaymentInfo";
-export const description = "Create a payment info object";
+export const commandName = "createPaymentInfo"
+export const description = "Create a payment info object"
 export const getArgs = (_connection: Connection, wallet: Wallet) => ({
   identifier: "cardinal-default",
   authority: wallet.publicKey,
-  paymentAmount: 5 * 10 ** 7,
+  paymentAmount: 2 * 10 ** 6,
   paymentMint: PublicKey.default,
   paymentShares: [
     {
-      address: new PublicKey("8FEdUUPFnkw1FEbpiczYGPomeGN4xzUbnpnPStgwPaUu"),
+      address: new PublicKey("4dNCRewnFfS89p7BAV3rnJu6NKnDoKxzsY1pAX7Ga5JT"),
       basisPoints: 10000,
     },
   ],
-});
+})
 
 export type InitPaymentInfoIx = {
-  authority: PublicKey;
-  identifier: string;
-  paymentAmount: number;
-  paymentMint: PublicKey;
-  paymentShares: { address: PublicKey; basisPoints: number }[];
-};
+  authority: PublicKey
+  identifier: string
+  paymentAmount: number
+  paymentMint: PublicKey
+  paymentShares: { address: PublicKey; basisPoints: number }[]
+}
 
 export const handler = async (
   connection: Connection,
   wallet: Wallet,
   args: InitPaymentInfoIx
 ) => {
-  const transaction = new Transaction();
-  const paymentInfoId = findPaymentInfoId(args.identifier);
-  const program = rewardsCenterProgram(connection, wallet);
+  const transaction = new Transaction()
+  const paymentInfoId = findPaymentInfoId(args.identifier)
+  const program = rewardsCenterProgram(connection, wallet)
 
   transaction.add(
     await program.methods
@@ -49,11 +49,11 @@ export const handler = async (
       })
       .accounts({ paymentInfo: paymentInfoId, payer: wallet.publicKey })
       .instruction()
-  );
-  await new Promise((r) => setTimeout(r, 200));
-  await executeTransaction(connection, transaction, wallet);
+  )
+  await new Promise((r) => setTimeout(r, 200))
+  await executeTransaction(connection, transaction, wallet)
   console.log(
     `Created payment manager ${args.identifier} [${paymentInfoId.toString()}]`,
     args
-  );
-};
+  )
+}
