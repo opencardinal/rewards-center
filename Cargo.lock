@@ -437,9 +437,9 @@ dependencies = [
 
 [[package]]
 name = "bytemuck"
-version = "1.13.0"
+version = "1.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c041d3eab048880cb0b86b256447da3f18859a163c3b8d8893f4e6368abe6393"
+checksum = "17febce684fd15d89027105661fec94afb475cb995fbc59d2865198446ba2eea"
 dependencies = [
  "bytemuck_derive",
 ]
@@ -1074,11 +1074,12 @@ dependencies = [
 
 [[package]]
 name = "mpl-token-auth-rules"
-version = "1.1.0"
+version = "1.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12b9ceca1f8e1a6e3588e367f7d7790e5f19956165d972709f53f61bb297459e"
+checksum = "66b1ec5ee0570f688cc84ff4624c5c50732f1a2bfc789f6b34af5b563428d971"
 dependencies = [
  "borsh",
+ "bytemuck",
  "mpl-token-metadata-context-derive",
  "num-derive",
  "num-traits",
